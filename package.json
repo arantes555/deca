@@ -2,13 +2,17 @@
   "name": "deca",
   "version": "0.0.1",
   "description": "A minimalistic test runner",
-  "main": "index.js",
+  "main": "./build/lib/suite.js",
   "scripts": {
     "lint": "eslint --ext .js,.ts src",
     "build": "tsc",
     "pretest": "npm run lint && npm run build",
-    "test": "mocha --require source-map-support/register ./build/tests/tests.spec.js"
+    "test": "mocha --require source-map-support/register ./build/tests/tests.spec.js",
+    "prepublishOnly": "npm run build"
   },
+  "files": [
+    "build/lib/*"
+  ],
   "author": "Seald SAS",
   "license": "MIT",
   "devDependencies": {
