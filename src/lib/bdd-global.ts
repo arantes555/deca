@@ -15,4 +15,4 @@ global.beforeEach = bdd.beforeEach
 // @ts-ignore
 global.afterEach = bdd.afterEach
 // @ts-ignore
-global.runTests = () => bdd.globalSuite.run()
+global.runTests = () => bdd.getGlobalSuite().run()

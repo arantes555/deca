@@ -1,9 +1,17 @@
 import { Suite } from './suite.js'
 import { noop, OldTestFunc, TestFunc, testFuncWrapper } from './utils'
 
-export const globalSuite = new Suite()
-globalSuite.depth = -1
-let globalCtx = globalSuite
+let globalSuite: Suite
+let globalCtx: Suite
+
+export const getGlobalSuite = () => globalSuite
+export const resetGlobalSuite = (): Suite => {
+  globalSuite = new Suite()
+  globalSuite.depth = -1
+  globalCtx = globalSuite
+  return globalSuite
+}
+resetGlobalSuite()
 
 const addSubSuite = (
   name: string,

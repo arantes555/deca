@@ -70,15 +70,6 @@ export class Suite {
     this.timeout_ = t
   }
 
-  clear (): void {
-    this.before_ = []
-    this.after_ = []
-    this.beforeEach_ = []
-    this.afterEach_ = []
-    this.tests = []
-    this.children = []
-  }
-
   before (name: string, fn: TestFunc): void {
     this.before_.push(fn) // TODO: handle name properly
   }

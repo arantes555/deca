@@ -1,4 +1,4 @@
-import { describe, it, globalSuite } from '../../lib/bdd'
+import { describe, it, resetGlobalSuite } from '../../lib/bdd'
 
 export const hasRun: Array<string> = []
 
@@ -14,7 +14,7 @@ export const expectedRun = [
 ]
 
 export const run = () => {
-  globalSuite.clear()
+  const suite = resetGlobalSuite()
 
   describe('test-bdd-skip', () => {
     it('test1', () => { hasRun.push('test1') })
@@ -40,5 +40,5 @@ export const run = () => {
     })
   })
 
-  return globalSuite.run()
+  return suite.run()
 }
