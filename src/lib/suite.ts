@@ -7,11 +7,13 @@ class Test {
   hasRun: boolean
   success: boolean
   skipped = false
+  only = false
 
   static create (name: string, func: TestFunc, {
     timeout = 3000,
-    skipped = false
-  }: { timeout?: number, skipped?: boolean } = {}) {
+    skipped = false,
+    only = false
+  }: { timeout?: number, skipped?: boolean, only?: boolean } = {}) {
     const t = new this()
     t.name = name
     t.func = func
@@ -19,6 +21,7 @@ class Test {
     t.success = null
     t.hasRun = false
     t.skipped = skipped
+    t.only = only
     return t
   }
 
@@ -57,6 +60,11 @@ export class Suite {
   timeout_: number
   parent: Suite = null
   skipped = false
+  only = false
+
+  childrenHaveOnly (): boolean {
+    return this.tests.some(t => t.only) || this.children.some(c => c.only || c.childrenHaveOnly())
+  }
 
   timeout (t: number): void {
     this.timeout_ = t
@@ -87,17 +95,26 @@ export class Suite {
     this.afterEach_.push(fn) // TODO: handle name properly
   }
 
-  addTest (name: string, func: TestFunc = noop, { timeout, skipped = false }: { timeout?: number, skipped?: boolean } = {}): void {
-    this.tests.push(Test.create(name, func, { timeout: timeout || this.timeout_, skipped }))
+  addTest (
+    name: string,
+    func: TestFunc = noop,
+    { timeout, skipped = false, only = false }: { timeout?: number, skipped?: boolean, only?: boolean } = {}
+  ): void {
+    this.tests.push(Test.create(name, func, { timeout: timeout || this.timeout_, skipped, only }))
   }
 
-  addSubSuite (name: string, func: (ctx?: Suite) => void, { timeout, skipped = false }: { timeout?: number, skipped?: boolean } = {}): void {
+  addSubSuite (
+    name: string,
+    func: (ctx?: Suite) => void,
+    { timeout, skipped = false, only = false }: { timeout?: number, skipped?: boolean, only?: boolean } = {}
+  ): void {
     const child = new Suite()
     child.name = name
     child.parent = this
     child.depth = this.depth + 1
     child.skipped = skipped
     child.timeout_ = timeout || this.timeout_
+    child.only = only
     this.children.push(child)
     func(child)
   }
@@ -125,7 +142,11 @@ export class Suite {
     if (this.skipped) return null
     let success = true
     await this.runBefore()
-    for (const test of this.tests) {
+    const childrenHaveOnly = this.childrenHaveOnly()
+    const testsToRun = childrenHaveOnly
+      ? this.tests.filter(t => t.only)
+      : this.tests
+    for (const test of testsToRun) {
       if (test.skipped) {
         console.log(`${'  '.repeat(this.depth + 1)}➡️ ${test.name} (skipped)`)
         continue
@@ -141,7 +162,10 @@ export class Suite {
       }
       await this.runAfterEach()
     }
-    for (const child of this.children) {
+    const subSuitesToRun = childrenHaveOnly
+      ? this.children.filter(c => c.only || c.childrenHaveOnly())
+      : this.children
+    for (const child of subSuitesToRun) {
       const childSuiteSuccess = await child.run()
       if (childSuiteSuccess === false) success = false
     }

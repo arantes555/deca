@@ -1,34 +1,42 @@
-import { describe, it, beforeEach, afterEach } from 'mocha'
+import { describe, it } from 'mocha'
 
-describe.skip('test-mocha-behaviour', function () {
-  beforeEach(function () {
-    console.log('Root beforeEach')
+describe('test-mocha-behaviour', function () {
+  it.only('test root1', function () {
+    console.log('test root1')
   })
-  afterEach(function () {
-    console.log('Root afterEach')
+  it.only('test root2', function () {
+    console.log('test root2')
   })
-  beforeEach(function () {
-    console.log('Root beforeEach2')
-  })
-  afterEach(function () {
-    console.log('Root afterEach2')
-  })
-  it('test root', function () {
-    console.log('test root')
-  })
-  describe('sub-describe', function () {
-    beforeEach(function () {
-      console.log('sub beforeEach')
+  describe('sub-describe 1', function () {
+    it('test1 sub1', function () {
+      console.log('test1 sub1')
     })
-    afterEach(function () {
-      console.log('sub afterEach')
+    it('test2 sub1', function () {
+      console.log('test2 sub1')
     })
-    it('test sub1', function () {
-      console.log('test sub1')
+    describe('sub-sub-describe 1', function () {
+      it('test1 sub-sub1', function () {
+        console.log('test1 sub-sub1')
+      })
+      it('test2 sub-sub1', function () {
+        console.log('test2 sub-sub1')
+      })
     })
-    it('test sub2', function () {
-      console.log('test sub2')
-      throw new Error('TESTERROR2')
+  })
+  describe.only('sub-describe 2', function () {
+    it.only('test1 sub2', function () {
+      console.log('test1 sub2')
+    })
+    it('test2 sub2', function () {
+      console.log('test2 sub2')
+    })
+    describe('sub-sub-describe 2', function () {
+      it('test1 sub-sub2', function () {
+        console.log('test1 sub-sub2')
+      })
+      it('test2 sub-sub2', function () {
+        console.log('test2 sub-sub2')
+      })
     })
   })
 })

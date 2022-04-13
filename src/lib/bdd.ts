@@ -5,7 +5,11 @@ export const globalSuite = new Suite()
 globalSuite.depth = -1
 let globalCtx = globalSuite
 
-export function describe (name: string, func: (this: Suite) => void): void {
+const addSubSuite = (
+  name: string,
+  func: (this: Suite) => void,
+  { skipped = false, only = false }: { skipped?: boolean, only?: boolean } = {}
+) => {
   const previousGlobalCtx = globalCtx
   globalCtx.addSubSuite(
     name,
@@ -14,29 +18,32 @@ export function describe (name: string, func: (this: Suite) => void): void {
       func.bind(ctx)()
       globalCtx = previousGlobalCtx
     },
-    { skipped: false }
+    { skipped, only }
   )
+}
+
+export function describe (name: string, func: (this: Suite) => void): void {
+  addSubSuite(name, func)
 }
 
 describe.skip = function describeSkip (name: string, func: (this: Suite) => void): void {
-  const previousGlobalCtx = globalCtx
-  globalCtx.addSubSuite(
-    name,
-    (ctx) => {
-      globalCtx = ctx
-      func.bind(ctx)()
-      globalCtx = previousGlobalCtx
-    },
-    { skipped: true }
-  )
+  addSubSuite(name, func, { skipped: true })
+}
+
+describe.only = function describeOnly (name: string, func: (this: Suite) => void): void {
+  addSubSuite(name, func, { only: true })
 }
 
 export function it (name: string, func?: TestFunc | OldTestFunc): void {
-  globalCtx.addTest(name, testFuncWrapper(func), { skipped: false })
+  globalCtx.addTest(name, testFuncWrapper(func))
 }
 
 it.skip = function itSkip (name: string, func?: TestFunc | OldTestFunc): void {
   globalCtx.addTest(name, testFuncWrapper(func), { skipped: true })
+}
+
+it.only = function itOnly (name: string, func?: TestFunc | OldTestFunc): void {
+  globalCtx.addTest(name, testFuncWrapper(func), { only: true })
 }
 
 const handleHookArgs = (arg1: string | TestFunc | OldTestFunc, arg2: TestFunc | OldTestFunc) => {
