@@ -8,6 +8,8 @@
     "build": "tsc",
     "pretest": "npm run lint && npm run build",
     "test": "mocha --require source-map-support/register ./build/tests/tests.spec.js",
+    "preself-test": "npm run lint && npm run build",
+    "self-test": "node build/tests/runTest.spec.js",
     "prepublishOnly": "npm run build"
   },
   "files": [

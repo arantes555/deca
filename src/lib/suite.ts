@@ -8,7 +8,10 @@ class Test {
   success: boolean
   skipped = false
 
-  static create (name: string, func: TestFunc, { timeout = 3000, skipped = false }: { timeout?: number, skipped?: boolean } = {}) {
+  static create (name: string, func: TestFunc, {
+    timeout = 3000,
+    skipped = false
+  }: { timeout?: number, skipped?: boolean } = {}) {
     const t = new this()
     t.name = name
     t.func = func
@@ -57,6 +60,15 @@ export class Suite {
 
   timeout (t: number): void {
     this.timeout_ = t
+  }
+
+  clear (): void {
+    this.before_ = []
+    this.after_ = []
+    this.beforeEach_ = []
+    this.afterEach_ = []
+    this.tests = []
+    this.children = []
   }
 
   before (name: string, fn: TestFunc): void {
@@ -114,10 +126,11 @@ export class Suite {
     let success = true
     await this.runBefore()
     for (const test of this.tests) {
-      await this.runBeforeEach()
       if (test.skipped) {
         console.log(`${'  '.repeat(this.depth + 1)}➡️ ${test.name} (skipped)`)
+        continue
       }
+      await this.runBeforeEach()
       const testError = await test.run()
       if (testError) {
         console.error(`${'  '.repeat(this.depth + 1)}❌  ${test.name} (error)`)

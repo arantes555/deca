@@ -5,29 +5,38 @@ export const globalSuite = new Suite()
 globalSuite.depth = -1
 let globalCtx = globalSuite
 
-export function describe (
-  name: string,
-  func: (ctx?: Suite) => void,
-  { timeout, skipped = false }: { timeout?: number, skipped?: boolean } = {}
-): void {
+export function describe (name: string, func: (this: Suite) => void): void {
   const previousGlobalCtx = globalCtx
   globalCtx.addSubSuite(
     name,
     (ctx) => {
       globalCtx = ctx
-      func.bind(ctx)(ctx)
+      func.bind(ctx)()
       globalCtx = previousGlobalCtx
     },
-    { timeout, skipped }
+    { skipped: false }
   )
 }
 
-describe.skip = function (name: string, func: (ctx?: Suite) => void, { timeout }: { timeout?: number } = {}): void {
-  return describe(name, func, { timeout, skipped: true })
+describe.skip = function describeSkip (name: string, func: (this: Suite) => void): void {
+  const previousGlobalCtx = globalCtx
+  globalCtx.addSubSuite(
+    name,
+    (ctx) => {
+      globalCtx = ctx
+      func.bind(ctx)()
+      globalCtx = previousGlobalCtx
+    },
+    { skipped: true }
+  )
 }
 
 export function it (name: string, func?: TestFunc | OldTestFunc): void {
-  globalCtx.addTest(name, testFuncWrapper(func))
+  globalCtx.addTest(name, testFuncWrapper(func), { skipped: false })
+}
+
+it.skip = function itSkip (name: string, func?: TestFunc | OldTestFunc): void {
+  globalCtx.addTest(name, testFuncWrapper(func), { skipped: true })
 }
 
 const handleHookArgs = (arg1: string | TestFunc | OldTestFunc, arg2: TestFunc | OldTestFunc) => {

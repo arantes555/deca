@@ -3,6 +3,7 @@ import { promisify } from 'util'
 export const timeout = (t: number) => new Promise((resolve, reject) => setTimeout(() => reject(new Error('Timeout')), t))
 export const noop = () => {} // eslint-disable-line @typescript-eslint/no-empty-function
 
+// TODO : bind 'this' context : `this: Test`
 export type TestFunc = () => void | Promise<void>
 export type OldTestFunc = (done: (err?: Error | null) => void) => void
 
