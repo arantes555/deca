@@ -6,7 +6,7 @@ describe('deca', function () {
     it('test sub1', async function () {
       const mySuite = new Suite()
       mySuite.addTest('test1', () => console.log('test1'))
-      mySuite.addTest('test2', () => { throw new Error('TEST2') })
+      mySuite.addTest('test2', () => { throw new Error('TEST2') }, { skipped: true })
       mySuite.addTest('test3', () => console.log('test3'))
       mySuite.addSubSuite('internal', (internalSuite) => {
         internalSuite.addTest('internalTest1', () => console.log('internalTest1'))

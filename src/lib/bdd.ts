@@ -5,13 +5,25 @@ export const globalSuite = new Suite()
 globalSuite.depth = -1
 let globalCtx = globalSuite
 
-export function describe (name: string, func: (ctx?: Suite) => void): void {
+export function describe (
+  name: string,
+  func: (ctx?: Suite) => void,
+  { timeout, skipped = false }: { timeout?: number, skipped?: boolean } = {}
+): void {
   const previousGlobalCtx = globalCtx
-  globalCtx.addSubSuite(name, (ctx) => {
-    globalCtx = ctx
-    func.bind(ctx)(ctx)
-    globalCtx = previousGlobalCtx
-  })
+  globalCtx.addSubSuite(
+    name,
+    (ctx) => {
+      globalCtx = ctx
+      func.bind(ctx)(ctx)
+      globalCtx = previousGlobalCtx
+    },
+    { timeout, skipped }
+  )
+}
+
+describe.skip = function (name: string, func: (ctx?: Suite) => void, { timeout }: { timeout?: number } = {}): void {
+  return describe(name, func, { timeout, skipped: true })
 }
 
 export function it (name: string, func?: TestFunc | OldTestFunc): void {

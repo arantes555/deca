@@ -6,18 +6,21 @@ class Test {
   timeout_: number
   hasRun: boolean
   success: boolean
+  skipped = false
 
-  static create (name: string, func: TestFunc, timeout: number) {
+  static create (name: string, func: TestFunc, { timeout = 3000, skipped = false }: { timeout?: number, skipped?: boolean } = {}) {
     const t = new this()
     t.name = name
     t.func = func
     t.timeout_ = timeout
     t.success = null
     t.hasRun = false
+    t.skipped = skipped
     return t
   }
 
   async run () {
+    if (this.skipped) return
     try {
       const promise = this.func.bind({
         timeout: (t: number) => {
@@ -50,6 +53,7 @@ export class Suite {
   children: Array<Suite> = []
   timeout_: number
   parent: Suite = null
+  skipped = false
 
   timeout (t: number): void {
     this.timeout_ = t
@@ -71,15 +75,17 @@ export class Suite {
     this.afterEach_.push(fn) // TODO: handle name properly
   }
 
-  addTest (name: string, func: TestFunc = noop): void {
-    this.tests.push(Test.create(name, func, this.timeout_))
+  addTest (name: string, func: TestFunc = noop, { timeout, skipped = false }: { timeout?: number, skipped?: boolean } = {}): void {
+    this.tests.push(Test.create(name, func, { timeout: timeout || this.timeout_, skipped }))
   }
 
-  addSubSuite (name: string, func: (ctx?: Suite) => void): void {
+  addSubSuite (name: string, func: (ctx?: Suite) => void, { timeout, skipped = false }: { timeout?: number, skipped?: boolean } = {}): void {
     const child = new Suite()
     child.name = name
     child.parent = this
     child.depth = this.depth + 1
+    child.skipped = skipped
+    child.timeout_ = timeout || this.timeout_
     this.children.push(child)
     func(child)
   }
@@ -104,17 +110,21 @@ export class Suite {
 
   async run (): Promise<boolean> {
     if (this.depth >= 0) console.log(`${'  '.repeat(this.depth)}${this.name}`)
+    if (this.skipped) return null
     let success = true
     await this.runBefore()
     for (const test of this.tests) {
       await this.runBeforeEach()
+      if (test.skipped) {
+        console.log(`${'  '.repeat(this.depth + 1)}➡️ ${test.name} (skipped)`)
+      }
       const testError = await test.run()
       if (testError) {
-        console.error(`${'  '.repeat(this.depth + 1)}❌ ${test.name}`)
+        console.error(`${'  '.repeat(this.depth + 1)}❌  ${test.name} (error)`)
         console.error(testError)
         success = false
       } else {
-        console.log(`${'  '.repeat(this.depth + 1)}✅ ${test.name}`)
+        console.log(`${'  '.repeat(this.depth + 1)}✅  ${test.name}`)
       }
       await this.runAfterEach()
     }
