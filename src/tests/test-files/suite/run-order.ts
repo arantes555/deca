@@ -1,4 +1,4 @@
-import { Suite } from '../../lib/suite'
+import { Suite } from '../../../lib/suite'
 
 export const hasRun: Array<string> = []
 

@@ -1,4 +1,4 @@
-import { describe, it, resetGlobalSuite } from '../../lib/bdd'
+import { describe, it, resetGlobalSuite } from '../../../lib/bdd'
 
 export const hasRun: Array<string> = []
 
