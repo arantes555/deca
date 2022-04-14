@@ -95,64 +95,64 @@ export const run = () => {
     hasRun.push('after2')
   })
 
-  mySuite.addSubSuite('suite with hooks', function (suiteSuite) {
-    suiteSuite.beforeEach('beforeEach1', async function () {
+  mySuite.addSubSuite('suite with hooks', function (subSuite) {
+    subSuite.beforeEach('beforeEach1', async function () {
       await wait(10)
       hasRun.push('beforeEach1')
     })
-    suiteSuite.afterEach('afterEach1', async function () {
+    subSuite.afterEach('afterEach1', async function () {
       await wait(10)
       hasRun.push('afterEach1')
     })
 
-    suiteSuite.addTest('suite-hooks-test1', async function () { hasRun.push('suite-hooks-test1') })
+    subSuite.addTest('suite-hooks-test1', async function () { hasRun.push('suite-hooks-test1') })
 
-    suiteSuite.beforeEach('beforeEach2', async function () {
+    subSuite.beforeEach('beforeEach2', async function () {
       await wait(5)
       hasRun.push('beforeEach2')
     })
-    suiteSuite.afterEach('afterEach2', async function () {
+    subSuite.afterEach('afterEach2', async function () {
       await wait(5)
       hasRun.push('afterEach2')
     })
   })
 
-  mySuite.addSubSuite('suite with default timeout', function (suiteSuite) {
-    suiteSuite.addTest('suite-default-timeout-test1', function () { hasRun.push('suite-default-timeout-test1') })
-    suiteSuite.addTest('suite-default-timeout-test2', async function () {
+  mySuite.addSubSuite('suite with default timeout', function (subSuite) {
+    subSuite.addTest('suite-default-timeout-test1', function () { hasRun.push('suite-default-timeout-test1') })
+    subSuite.addTest('suite-default-timeout-test2', async function () {
       await wait(5)
       hasRun.push('suite-default-timeout-test2')
     })
-    suiteSuite.addTest('suite-default-timeout-test3', async function () {
+    subSuite.addTest('suite-default-timeout-test3', async function () {
       await wait(5)
       hasRun.push('suite-default-timeout-test3')
       throw new Error('suite-default-timeout-test3')
     })
-    suiteSuite.addTest('suite-default-timeout-test4', async function () {
+    subSuite.addTest('suite-default-timeout-test4', async function () {
       this.timeout(5)
       hasRun.push('suite-default-timeout-test4')
       await wait(100)
     })
   })
 
-  mySuite.addSubSuite('suite with short timeout', function (suiteSuite) {
-    suiteSuite.timeout(5)
-    suiteSuite.addTest('suite-short-timeout-test1', async function () { hasRun.push('suite-short-timeout-test1') })
-    suiteSuite.addTest('suite-short-timeout-test2', async function () {
+  mySuite.addSubSuite('suite with short timeout', function (subSuite) {
+    subSuite.timeout(5)
+    subSuite.addTest('suite-short-timeout-test1', async function () { hasRun.push('suite-short-timeout-test1') })
+    subSuite.addTest('suite-short-timeout-test2', async function () {
       hasRun.push('suite-short-timeout-test2')
       await wait(100)
     })
-    suiteSuite.addTest('suite-short-timeout-test3', async function () {
+    subSuite.addTest('suite-short-timeout-test3', async function () {
       this.timeout(20)
       hasRun.push('suite-short-timeout-test3')
       await wait(10)
     })
   })
 
-  mySuite.addSubSuite('suite with long timeout', function (suiteSuite) {
-    suiteSuite.timeout(50)
-    suiteSuite.addTest('suite-long-timeout-test1', async function () { hasRun.push('suite-long-timeout-test1') })
-    suiteSuite.addTest('suite-long-timeout-test2', async function () {
+  mySuite.addSubSuite('suite with long timeout', function (subSuite) {
+    subSuite.timeout(50)
+    subSuite.addTest('suite-long-timeout-test1', async function () { hasRun.push('suite-long-timeout-test1') })
+    subSuite.addTest('suite-long-timeout-test2', async function () {
       this.timeout(10)
       hasRun.push('suite-long-timeout-test2')
       await wait(20)

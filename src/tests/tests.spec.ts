@@ -1,3 +1,6 @@
+import assert from 'assert'
+import { getComparableSuiteResult } from './test-utils.spec'
+
 import * as TestSuiteRunOrder from './test-files/suite/run-order'
 import * as TestSuiteSkip from './test-files/suite/skip'
 import * as TestSuiteOnly from './test-files/suite/only'
@@ -9,8 +12,6 @@ import * as TestBddOnly from './test-files/bdd/only'
 import * as TestBddError from './test-files/bdd/error'
 import * as TestBddAsync from './test-files/bdd/async'
 import * as TestBddAsyncOld from './test-files/bdd/async-old'
-import assert from 'assert'
-import { getComparableSuiteResult } from './test-utils.spec'
 
 describe('deca', function () {
   describe('raw Suite', function () {
@@ -19,24 +20,28 @@ describe('deca', function () {
       const res = await TestSuiteRunOrder.run()
       assert.strictEqual(res.success, true)
       assert.deepStrictEqual(TestSuiteRunOrder.hasRun, TestSuiteRunOrder.expectedRun)
+      assert.deepStrictEqual(getComparableSuiteResult(res.result), TestSuiteRunOrder.expectedResult)
     })
     it('test suite with skipped', async function () {
       assert.deepStrictEqual(TestSuiteSkip.hasRun, [])
       const res = await TestSuiteSkip.run()
       assert.strictEqual(res.success, true)
       assert.deepStrictEqual(TestSuiteSkip.hasRun, TestSuiteSkip.expectedRun)
+      assert.deepStrictEqual(getComparableSuiteResult(res.result), TestSuiteSkip.expectedResult)
     })
     it('test suite with only', async function () {
       assert.deepStrictEqual(TestSuiteOnly.hasRun, [])
       const res = await TestSuiteOnly.run()
       assert.strictEqual(res.success, true)
       assert.deepStrictEqual(TestSuiteOnly.hasRun, TestSuiteOnly.expectedRun)
+      assert.deepStrictEqual(getComparableSuiteResult(res.result), TestSuiteOnly.expectedResult)
     })
     it('test suite with errors', async function () {
       assert.deepStrictEqual(TestSuiteErrors.hasRun, [])
       const res = await TestSuiteErrors.run()
       assert.strictEqual(res.success, false)
       assert.deepStrictEqual(TestSuiteErrors.hasRun, TestSuiteErrors.expectedRun)
+      assert.deepStrictEqual(getComparableSuiteResult(res.result), TestSuiteErrors.expectedResult)
     })
     it('test suite async', async function () {
       assert.deepStrictEqual(TestSuiteAsync.hasRun, [])
@@ -52,24 +57,28 @@ describe('deca', function () {
       const res = await TestBddRunOrder.run()
       assert.strictEqual(res.success, true)
       assert.deepStrictEqual(TestBddRunOrder.hasRun, TestBddRunOrder.expectedRun)
+      assert.deepStrictEqual(getComparableSuiteResult(res.result), TestBddRunOrder.expectedResult)
     })
     it('test bdd with skipped', async function () {
       assert.deepStrictEqual(TestBddSkip.hasRun, [])
       const res = await TestBddSkip.run()
       assert.strictEqual(res.success, true)
       assert.deepStrictEqual(TestBddSkip.hasRun, TestBddSkip.expectedRun)
+      assert.deepStrictEqual(getComparableSuiteResult(res.result), TestBddSkip.expectedResult)
     })
     it('test bdd with only', async function () {
       assert.deepStrictEqual(TestBddOnly.hasRun, [])
       const res = await TestBddOnly.run()
       assert.strictEqual(res.success, true)
       assert.deepStrictEqual(TestBddOnly.hasRun, TestBddOnly.expectedRun)
+      assert.deepStrictEqual(getComparableSuiteResult(res.result), TestBddOnly.expectedResult)
     })
     it('test bdd with errors', async function () {
       assert.deepStrictEqual(TestBddError.hasRun, [])
       const res = await TestBddError.run()
       assert.strictEqual(res.success, false)
       assert.deepStrictEqual(TestBddError.hasRun, TestBddError.expectedRun)
+      assert.deepStrictEqual(getComparableSuiteResult(res.result), TestBddError.expectedResult)
     })
     it('test bdd async', async function () {
       assert.deepStrictEqual(TestBddAsync.hasRun, [])

@@ -1,4 +1,5 @@
 import { describe, it, before, after, beforeEach, afterEach, resetGlobalSuite } from '../../../lib/bdd'
+import { ComparableSuiteResult } from '../../test-utils.spec'
 
 export const hasRun: Array<string> = []
 
@@ -15,6 +16,10 @@ export const expectedRun = [
   // 'afterEach',
 
   'beforeEach',
+  'test3',
+  'afterEach',
+
+  'beforeEach',
   'internalTest1',
   'afterEach',
 
@@ -26,10 +31,44 @@ export const expectedRun = [
   'after'
 ]
 
+export const expectedResult: ComparableSuiteResult = {
+  name: '',
+  skipped: false,
+  tests: [],
+  subSuites: [
+    {
+      name: 'test-skip',
+      skipped: false,
+      tests: [
+        { name: 'test1', skipped: false, error: null },
+        { name: 'test2', skipped: true, error: null },
+        { name: 'test3', skipped: false, error: null }
+      ],
+      subSuites: [
+        {
+          name: 'internal',
+          skipped: false,
+          tests: [
+            { name: 'internalTest1', skipped: false, error: null },
+            { name: 'internalTest2', skipped: true, error: null }
+          ],
+          subSuites: []
+        },
+        {
+          name: 'internal-skipped',
+          skipped: true,
+          tests: [],
+          subSuites: []
+        }
+      ]
+    }
+  ]
+}
+
 export const run = () => {
   const suite = resetGlobalSuite()
 
-  describe('test-bdd-skip', () => {
+  describe('test-skip', () => {
     before('before', () => { hasRun.push('before') })
     after('after', () => { hasRun.push('after') })
     beforeEach('beforeEach', () => { hasRun.push('beforeEach') })
@@ -37,6 +76,7 @@ export const run = () => {
 
     it('test1', () => { hasRun.push('test1') })
     it.skip('test2', () => { hasRun.push('test2') })
+    it('test3', () => { hasRun.push('test3') })
 
     describe('internal', () => {
       it('internalTest1', () => { hasRun.push('internalTest1') })

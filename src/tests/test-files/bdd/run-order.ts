@@ -1,4 +1,5 @@
 import { describe, it, before, after, beforeEach, afterEach, resetGlobalSuite } from '../../../lib/bdd'
+import { ComparableSuiteResult } from '../../test-utils.spec'
 
 export const hasRun: Array<string> = []
 
@@ -46,13 +47,40 @@ export const expectedRun = [
   'globalAfter'
 ]
 
+export const expectedResult: ComparableSuiteResult = {
+  name: '',
+  skipped: false,
+  tests: [],
+  subSuites: [
+    {
+      name: 'test-run-order',
+      skipped: false,
+      tests: [
+        { name: 'test1', skipped: false, error: null },
+        { name: 'test2', skipped: false, error: null }
+      ],
+      subSuites: [
+        {
+          name: 'internal',
+          skipped: false,
+          tests: [
+            { name: 'internalTest1', skipped: false, error: null },
+            { name: 'internalTest2', skipped: false, error: null }
+          ],
+          subSuites: []
+        }
+      ]
+    }
+  ]
+}
+
 export const run = () => {
   const suite = resetGlobalSuite()
 
   before('globalBefore', () => { hasRun.push('globalBefore') })
   after('globalAfter', () => { hasRun.push('globalAfter') })
 
-  describe('test-bdd-run-order', () => {
+  describe('test-run-order', () => {
     before('before1', () => { hasRun.push('before1') })
     after('after1', () => { hasRun.push('after1') })
     beforeEach('beforeEach1', () => { hasRun.push('beforeEach1') })

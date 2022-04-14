@@ -1,4 +1,5 @@
 import { Suite } from '../../../lib/suite'
+import { ComparableSuiteResult } from '../../test-utils.spec'
 
 export const hasRun: Array<string> = []
 
@@ -15,6 +16,10 @@ export const expectedRun = [
   // 'afterEach',
 
   'beforeEach',
+  'test3',
+  'afterEach',
+
+  'beforeEach',
   'internalTest1',
   'afterEach',
 
@@ -26,25 +31,62 @@ export const expectedRun = [
   'after'
 ]
 
+export const expectedResult: ComparableSuiteResult = {
+  name: '',
+  skipped: false,
+  tests: [],
+  subSuites: [
+    {
+      name: 'test-skip',
+      skipped: false,
+      tests: [
+        { name: 'test1', skipped: false, error: null },
+        { name: 'test2', skipped: true, error: null },
+        { name: 'test3', skipped: false, error: null }
+      ],
+      subSuites: [
+        {
+          name: 'internal',
+          skipped: false,
+          tests: [
+            { name: 'internalTest1', skipped: false, error: null },
+            { name: 'internalTest2', skipped: true, error: null }
+          ],
+          subSuites: []
+        },
+        {
+          name: 'internal-skipped',
+          skipped: true,
+          tests: [],
+          subSuites: []
+        }
+      ]
+    }
+  ]
+}
+
 export const run = () => {
   const mySuite = new Suite()
 
-  mySuite.before('before', () => { hasRun.push('before') })
-  mySuite.after('after', () => { hasRun.push('after') })
-  mySuite.beforeEach('beforeEach', () => { hasRun.push('beforeEach') })
-  mySuite.afterEach('afterEach', () => { hasRun.push('afterEach') })
+  mySuite.addSubSuite('test-skip', (subSuite) => {
+    subSuite.before('before', () => { hasRun.push('before') })
+    subSuite.after('after', () => { hasRun.push('after') })
+    subSuite.beforeEach('beforeEach', () => { hasRun.push('beforeEach') })
+    subSuite.afterEach('afterEach', () => { hasRun.push('afterEach') })
 
-  mySuite.addTest('test1', () => { hasRun.push('test1') })
-  mySuite.addTest('test2', () => { hasRun.push('test2') }, { skipped: true })
+    subSuite.addTest('test1', () => { hasRun.push('test1') })
+    subSuite.addTest('test2', () => { hasRun.push('test2') }, { skipped: true })
+    subSuite.addTest('test3', () => { hasRun.push('test3') })
 
-  mySuite.addSubSuite('internal', (internalSuite) => {
-    internalSuite.addTest('internalTest1', () => { hasRun.push('internalTest1') })
-    internalSuite.addTest('internalTest2', () => { hasRun.push('internalTest2') }, { skipped: true })
+    subSuite.addSubSuite('internal', (internalSuite) => {
+      internalSuite.addTest('internalTest1', () => { hasRun.push('internalTest1') })
+      internalSuite.addTest('internalTest2', () => { hasRun.push('internalTest2') }, { skipped: true })
+    })
+
+    subSuite.addSubSuite('internal-skipped', (internalSuite) => {
+      internalSuite.addTest('internalSkippedTest1', () => { hasRun.push('internalSkippedTest1') })
+      internalSuite.addTest('internalSkippedTest2', () => { hasRun.push('internalSkippedTest2') })
+    }, { skipped: true })
   })
-
-  mySuite.addSubSuite('internal-skipped', (internalSuite) => {
-    internalSuite.addTest('internalSkippedTest1', () => { hasRun.push('internalSkippedTest1') })
-    internalSuite.addTest('internalSkippedTest2', () => { hasRun.push('internalSkippedTest2') })
-  }, { skipped: true })
   return mySuite.run()
 }

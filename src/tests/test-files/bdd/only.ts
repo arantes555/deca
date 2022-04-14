@@ -1,4 +1,5 @@
 import { describe, it, resetGlobalSuite } from '../../../lib/bdd'
+import { ComparableSuiteResult } from '../../test-utils.spec'
 
 export const hasRun: Array<string> = []
 
@@ -13,10 +14,54 @@ export const expectedRun = [
   'internal-only-internal-test-2'
 ]
 
+export const expectedResult: ComparableSuiteResult = {
+  name: '',
+  skipped: false,
+  tests: [],
+  subSuites: [
+    {
+      name: 'test-only',
+      skipped: false,
+      tests: [
+        { name: 'test2', skipped: false, error: null }
+      ],
+      subSuites: [
+        {
+          name: 'internal-not-only-with-only-test',
+          skipped: false,
+          tests: [
+            { name: 'internal-not-only-with-only-test-test-2', skipped: false, error: null }
+          ],
+          subSuites: []
+        },
+        {
+          name: 'internal-only',
+          skipped: false,
+          tests: [
+            { name: 'internal-only-test-1', skipped: false, error: null },
+            { name: 'internal-only-test-2', skipped: false, error: null }
+          ],
+          subSuites: [
+            {
+              name: 'internal-only-internal',
+              skipped: false,
+              tests: [
+                { name: 'internal-only-internal-test-1', skipped: false, error: null },
+                { name: 'internal-only-internal-test-2', skipped: false, error: null }
+              ],
+              subSuites: []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
 export const run = () => {
   const suite = resetGlobalSuite()
 
-  describe('test-bdd-skip', () => {
+  describe('test-only', () => {
     it('test1', () => { hasRun.push('test1') })
     it.only('test2', () => { hasRun.push('test2') })
 
