@@ -1,6 +1,6 @@
 import { noop, TestFunc, timeout } from './utils'
 
-class Test {
+export class Test {
   name: string
   func: TestFunc
   timeout_: number
@@ -9,11 +9,11 @@ class Test {
   skipped = false
   only = false
 
-  static create (name: string, func: TestFunc, {
-    timeout = 3000,
-    skipped = false,
-    only = false
-  }: { timeout?: number, skipped?: boolean, only?: boolean } = {}) {
+  static create (
+    name: string,
+    func: TestFunc,
+    { timeout = 3000, skipped = false, only = false }: { timeout?: number, skipped?: boolean, only?: boolean } = {}
+  ): Test {
     const t = new this()
     t.name = name
     t.func = func
@@ -25,25 +25,21 @@ class Test {
     return t
   }
 
-  async run () {
+  async run (): Promise<void> {
     if (this.skipped) return
     try {
-      const promise = this.func.bind({
-        timeout: (t: number) => {
-          this.timeout_ = t
-        }
-      })() // the function may modify the timeout *synchronously* by calling `this.timeout(t)`
+      const promise = this.func.bind(this)()
+      // the function may modify the timeout *synchronously* by calling `this.timeout(t)`
       await Promise.race([
         promise,
         timeout(this.timeout_)
       ])
       this.hasRun = true
       this.success = true
-      return null
     } catch (err) {
       this.hasRun = true
       this.success = false
-      return err
+      throw err
     }
   }
 }
@@ -51,10 +47,10 @@ class Test {
 export class Suite {
   name = ''
   depth = 0
-  before_?: Array<TestFunc> = []
-  after_?: Array<TestFunc> = []
-  beforeEach_?: Array<TestFunc> = []
-  afterEach_?: Array<TestFunc> = []
+  before_?: Array<Test> = []
+  after_?: Array<Test> = []
+  beforeEach_?: Array<Test> = []
+  afterEach_?: Array<Test> = []
   tests: Array<Test> = []
   children: Array<Suite> = []
   timeout_: number
@@ -72,19 +68,19 @@ export class Suite {
   }
 
   before (name: string, fn: TestFunc): void {
-    this.before_.push(fn) // TODO: handle name properly
+    this.before_.push(Test.create(name, fn))
   }
 
   after (name: string, fn: TestFunc): void {
-    this.after_.push(fn) // TODO: handle name properly
+    this.after_.push(Test.create(name, fn))
   }
 
   beforeEach (name: string, fn: TestFunc): void {
-    this.beforeEach_.push(fn) // TODO: handle name properly
+    this.beforeEach_.push(Test.create(name, fn))
   }
 
   afterEach (name: string, fn: TestFunc): void {
-    this.afterEach_.push(fn) // TODO: handle name properly
+    this.afterEach_.push(Test.create(name, fn))
   }
 
   addTest (
@@ -113,56 +109,69 @@ export class Suite {
   }
 
   async runBefore (): Promise<void> {
-    await Promise.all([this.before_.map(fn => fn())])
+    for (const hook of this.before_) {
+      await hook.run()
+    }
   }
 
   async runAfter (): Promise<void> {
-    await Promise.all([this.after_.map(fn => fn())])
+    for (const hook of this.after_) {
+      await hook.run()
+    }
   }
 
   async runBeforeEach (): Promise<void> {
     if (this.parent) await this.parent.runBeforeEach()
-    await Promise.all([this.beforeEach_.map(fn => fn())])
+    for (const hook of this.beforeEach_) {
+      await hook.run()
+    }
   }
 
   async runAfterEach (): Promise<void> {
-    await Promise.all([this.afterEach_.map(fn => fn())])
+    for (const hook of this.afterEach_) {
+      await hook.run()
+    }
     if (this.parent) await this.parent.runAfterEach()
   }
 
   async run (): Promise<boolean> {
     if (this.depth >= 0 && !this.silent) console.log(`${'  '.repeat(this.depth)}${this.name}`)
     if (this.skipped) return null
-    let success = true
-    await this.runBefore()
-    const childrenHaveOnly = this.childrenHaveOnly()
-    const testsToRun = childrenHaveOnly
-      ? this.tests.filter(t => t.only)
-      : this.tests
-    for (const test of testsToRun) {
-      if (test.skipped) {
-        if (!this.silent) console.log(`${'  '.repeat(this.depth + 1)}➡️ ${test.name} (skipped)`)
-        continue
+    try {
+      let success = true
+      await this.runBefore()
+      const childrenHaveOnly = this.childrenHaveOnly()
+      const testsToRun = childrenHaveOnly
+        ? this.tests.filter(t => t.only)
+        : this.tests
+      for (const test of testsToRun) {
+        if (test.skipped) {
+          if (!this.silent) console.log(`${'  '.repeat(this.depth + 1)}➡️ ${test.name} (skipped)`)
+          continue
+        }
+        await this.runBeforeEach()
+        try {
+          await test.run()
+          if (!this.silent) console.log(`${'  '.repeat(this.depth + 1)}✅  ${test.name}`)
+        } catch (testError) {
+          if (!this.silent) console.error(`${'  '.repeat(this.depth + 1)}❌  ${test.name} (error)`)
+          if (!this.silent) console.error(testError)
+          success = false
+        }
+        await this.runAfterEach()
       }
-      await this.runBeforeEach()
-      const testError = await test.run()
-      if (testError) {
-        if (!this.silent) console.error(`${'  '.repeat(this.depth + 1)}❌  ${test.name} (error)`)
-        if (!this.silent) console.error(testError)
-        success = false
-      } else {
-        if (!this.silent) console.log(`${'  '.repeat(this.depth + 1)}✅  ${test.name}`)
+      const subSuitesToRun = childrenHaveOnly
+        ? this.children.filter(c => c.only || c.childrenHaveOnly())
+        : this.children
+      for (const child of subSuitesToRun) {
+        const childSuiteSuccess = await child.run()
+        if (childSuiteSuccess === false) success = false
       }
-      await this.runAfterEach()
+      await this.runAfter()
+      return success
+    } catch (err) {
+      console.error(`${'  '.repeat(this.depth + 1)}❌  Error while running one of the hooks`)
+      return false
     }
-    const subSuitesToRun = childrenHaveOnly
-      ? this.children.filter(c => c.only || c.childrenHaveOnly())
-      : this.children
-    for (const child of subSuitesToRun) {
-      const childSuiteSuccess = await child.run()
-      if (childSuiteSuccess === false) success = false
-    }
-    await this.runAfter()
-    return success
   }
 }
