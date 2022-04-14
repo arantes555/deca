@@ -61,6 +61,7 @@ export class Suite {
   parent: Suite = null
   skipped = false
   only = false
+  silent = false
 
   childrenHaveOnly (): boolean {
     return this.tests.some(t => t.only) || this.children.some(c => c.only || c.childrenHaveOnly())
@@ -97,7 +98,7 @@ export class Suite {
   addSubSuite (
     name: string,
     func: (ctx?: Suite) => void,
-    { timeout, skipped = false, only = false }: { timeout?: number, skipped?: boolean, only?: boolean } = {}
+    { timeout, skipped = false, only = false, silent = this.silent }: { timeout?: number, skipped?: boolean, only?: boolean, silent?: boolean } = {}
   ): void {
     const child = new Suite()
     child.name = name
@@ -106,6 +107,7 @@ export class Suite {
     child.skipped = skipped
     child.timeout_ = timeout || this.timeout_
     child.only = only
+    child.silent = silent
     this.children.push(child)
     func(child)
   }
@@ -129,7 +131,7 @@ export class Suite {
   }
 
   async run (): Promise<boolean> {
-    if (this.depth >= 0) console.log(`${'  '.repeat(this.depth)}${this.name}`)
+    if (this.depth >= 0 && !this.silent) console.log(`${'  '.repeat(this.depth)}${this.name}`)
     if (this.skipped) return null
     let success = true
     await this.runBefore()
@@ -139,17 +141,17 @@ export class Suite {
       : this.tests
     for (const test of testsToRun) {
       if (test.skipped) {
-        console.log(`${'  '.repeat(this.depth + 1)}➡️ ${test.name} (skipped)`)
+        if (!this.silent) console.log(`${'  '.repeat(this.depth + 1)}➡️ ${test.name} (skipped)`)
         continue
       }
       await this.runBeforeEach()
       const testError = await test.run()
       if (testError) {
-        console.error(`${'  '.repeat(this.depth + 1)}❌  ${test.name} (error)`)
-        console.error(testError)
+        if (!this.silent) console.error(`${'  '.repeat(this.depth + 1)}❌  ${test.name} (error)`)
+        if (!this.silent) console.error(testError)
         success = false
       } else {
-        console.log(`${'  '.repeat(this.depth + 1)}✅  ${test.name}`)
+        if (!this.silent) console.log(`${'  '.repeat(this.depth + 1)}✅  ${test.name}`)
       }
       await this.runAfterEach()
     }
