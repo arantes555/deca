@@ -170,7 +170,8 @@ export class Suite {
       await this.runAfter()
       return success
     } catch (err) {
-      console.error(`${'  '.repeat(this.depth + 1)}❌  Error while running one of the hooks`)
+      if (!this.silent) console.error(`${'  '.repeat(this.depth + 1)}❌  Error while running one of the hooks`)
+      if (!this.silent) console.error(err)
       return false
     }
   }

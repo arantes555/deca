@@ -1,9 +1,11 @@
 import * as TestSuiteRunOrder from './test-files/test-suite-run-order'
 import * as TestSuiteSkip from './test-files/test-suite-skip'
 import * as TestSuiteOnly from './test-files/test-suite-only'
+import * as TestSuiteErrors from './test-files/test-suite-error'
 import * as TestBddRunOrder from './test-files/test-bdd-run-order'
 import * as TestBddSkip from './test-files/test-bdd-skip'
 import * as TestBddOnly from './test-files/test-bdd-only'
+import * as TestBddError from './test-files/test-bdd-error'
 import assert from 'assert'
 
 describe('deca', function () {
@@ -26,6 +28,12 @@ describe('deca', function () {
       assert.strictEqual(success, true)
       assert.deepStrictEqual(TestSuiteOnly.hasRun, TestSuiteOnly.expectedRun)
     })
+    it('test suite with errors', async function () {
+      assert.deepStrictEqual(TestSuiteErrors.hasRun, [])
+      const success = await TestSuiteErrors.run()
+      assert.strictEqual(success, false)
+      assert.deepStrictEqual(TestSuiteErrors.hasRun, TestSuiteErrors.expectedRun)
+    })
   })
   describe('BDD interface', function () {
     it('test suite run order', async function () {
@@ -45,6 +53,12 @@ describe('deca', function () {
       const success = await TestBddOnly.run()
       assert.strictEqual(success, true)
       assert.deepStrictEqual(TestBddOnly.hasRun, TestBddOnly.expectedRun)
+    })
+    it('test suite with errors', async function () {
+      assert.deepStrictEqual(TestBddError.hasRun, [])
+      const success = await TestBddError.run()
+      assert.strictEqual(success, false)
+      assert.deepStrictEqual(TestBddError.hasRun, TestBddError.expectedRun)
     })
   })
 })
