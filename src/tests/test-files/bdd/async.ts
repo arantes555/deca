@@ -9,21 +9,21 @@ export const expectedRun = [
 
   'beforeEach1',
   'beforeEach2',
-  'internal-hooks-test1',
+  'suite-hooks-test1',
   'afterEach1',
   'afterEach2',
 
-  'internal-default-timeout-test1',
-  'internal-default-timeout-test2',
-  'internal-default-timeout-test3',
-  'internal-default-timeout-test4',
+  'suite-default-timeout-test1',
+  'suite-default-timeout-test2',
+  'suite-default-timeout-test3',
+  'suite-default-timeout-test4',
 
-  'internal-short-timeout-test1',
-  'internal-short-timeout-test2',
-  'internal-short-timeout-test3',
+  'suite-short-timeout-test1',
+  'suite-short-timeout-test2',
+  'suite-short-timeout-test3',
 
-  'internal-long-timeout-test1',
-  'internal-long-timeout-test2',
+  'suite-long-timeout-test1',
+  'suite-long-timeout-test2',
 
   'after1',
   'after2'
@@ -35,136 +35,127 @@ export const expectedResult: ComparableSuiteResult = {
   tests: [],
   subSuites: [
     {
-      name: 'test-bdd-async',
+      name: 'suite with hooks',
       skipped: false,
-      tests: [],
-      subSuites: [
-        {
-          name: 'internal with hooks',
-          skipped: false,
-          tests: [
-            { name: 'internal-hooks-test1', skipped: false, error: null }
-          ],
-          subSuites: []
-        },
-        {
-          name: 'internal with default timeout',
-          skipped: false,
-          tests: [
-            { name: 'internal-default-timeout-test1', skipped: false, error: null },
-            { name: 'internal-default-timeout-test2', skipped: false, error: null },
-            { name: 'internal-default-timeout-test3', skipped: false, error: 'Error: internal-default-timeout-test3' },
-            { name: 'internal-default-timeout-test4', skipped: false, error: 'Error: Timeout' }
-          ],
-          subSuites: []
-        },
-        {
-          name: 'internal with short timeout',
-          skipped: false,
-          tests: [
-            { name: 'internal-short-timeout-test1', skipped: false, error: null },
-            { name: 'internal-short-timeout-test2', skipped: false, error: 'Error: Timeout' },
-            { name: 'internal-short-timeout-test3', skipped: false, error: null }
-          ],
-          subSuites: []
-        },
-        {
-          name: 'internal with long timeout',
-          skipped: false,
-          tests: [
-            { name: 'internal-long-timeout-test1', skipped: false, error: null },
-            { name: 'internal-long-timeout-test2', skipped: false, error: 'Error: Timeout' }
-          ],
-          subSuites: []
-        }
-      ]
+      tests: [
+        { name: 'suite-hooks-test1', skipped: false, error: null }
+      ],
+      subSuites: []
+    },
+    {
+      name: 'suite with default timeout',
+      skipped: false,
+      tests: [
+        { name: 'suite-default-timeout-test1', skipped: false, error: null },
+        { name: 'suite-default-timeout-test2', skipped: false, error: null },
+        { name: 'suite-default-timeout-test3', skipped: false, error: 'Error: suite-default-timeout-test3' },
+        { name: 'suite-default-timeout-test4', skipped: false, error: 'Error: Timeout' }
+      ],
+      subSuites: []
+    },
+    {
+      name: 'suite with short timeout',
+      skipped: false,
+      tests: [
+        { name: 'suite-short-timeout-test1', skipped: false, error: null },
+        { name: 'suite-short-timeout-test2', skipped: false, error: 'Error: Timeout' },
+        { name: 'suite-short-timeout-test3', skipped: false, error: null }
+      ],
+      subSuites: []
+    },
+    {
+      name: 'suite with long timeout',
+      skipped: false,
+      tests: [
+        { name: 'suite-long-timeout-test1', skipped: false, error: null },
+        { name: 'suite-long-timeout-test2', skipped: false, error: 'Error: Timeout' }
+      ],
+      subSuites: []
     }
   ]
 }
 
-export const run = function () {
+export const run = () => {
   const suite = resetGlobalSuite()
 
-  describe('test-bdd-async', function () {
-    before('before1', async function () {
+  before('before1', async function () {
+    await wait(10)
+    hasRun.push('before1')
+  })
+  after('after1', async function () {
+    await wait(10)
+    hasRun.push('after1')
+  })
+  before('before2', async function () {
+    await wait(5) // This is less than the wait in before1, to make sure before1 is finished before we start before2
+    hasRun.push('before2')
+  })
+  after('after2', async function () {
+    await wait(5)
+    hasRun.push('after2')
+  })
+
+  describe('suite with hooks', function () {
+    beforeEach('beforeEach1', async function () {
       await wait(10)
-      hasRun.push('before1')
+      hasRun.push('beforeEach1')
     })
-    after('after1', async function () {
+    afterEach('afterEach1', async function () {
       await wait(10)
-      hasRun.push('after1')
+      hasRun.push('afterEach1')
     })
-    before('before2', async function () {
-      await wait(5) // This is less than the wait in before1, to make sure before1 is finished before we start before2
-      hasRun.push('before2')
-    })
-    after('after2', async function () {
+
+    it('suite-hooks-test1', async function () { hasRun.push('suite-hooks-test1') })
+
+    beforeEach('beforeEach2', async function () {
       await wait(5)
-      hasRun.push('after2')
+      hasRun.push('beforeEach2')
     })
-
-    describe('internal with hooks', function () {
-      beforeEach('beforeEach1', async function () {
-        await wait(10)
-        hasRun.push('beforeEach1')
-      })
-      afterEach('afterEach1', async function () {
-        await wait(10)
-        hasRun.push('afterEach1')
-      })
-
-      it('internal-hooks-test1', async function () { hasRun.push('internal-hooks-test1') })
-
-      beforeEach('beforeEach2', async function () {
-        await wait(5)
-        hasRun.push('beforeEach2')
-      })
-      afterEach('afterEach2', async function () {
-        await wait(5)
-        hasRun.push('afterEach2')
-      })
+    afterEach('afterEach2', async function () {
+      await wait(5)
+      hasRun.push('afterEach2')
     })
+  })
 
-    describe('internal with default timeout', function () {
-      it('internal-default-timeout-test1', function () { hasRun.push('internal-default-timeout-test1') })
-      it('internal-default-timeout-test2', async function () {
-        await wait(5)
-        hasRun.push('internal-default-timeout-test2')
-      })
-      it('internal-default-timeout-test3', async function () {
-        await wait(5)
-        hasRun.push('internal-default-timeout-test3')
-        throw new Error('internal-default-timeout-test3')
-      })
-      it('internal-default-timeout-test4', async function () {
-        this.timeout(5)
-        hasRun.push('internal-default-timeout-test4')
-        await wait(100)
-      })
+  describe('suite with default timeout', function () {
+    it('suite-default-timeout-test1', function () { hasRun.push('suite-default-timeout-test1') })
+    it('suite-default-timeout-test2', async function () {
+      await wait(5)
+      hasRun.push('suite-default-timeout-test2')
     })
-
-    describe('internal with short timeout', function () {
+    it('suite-default-timeout-test3', async function () {
+      await wait(5)
+      hasRun.push('suite-default-timeout-test3')
+      throw new Error('suite-default-timeout-test3')
+    })
+    it('suite-default-timeout-test4', async function () {
       this.timeout(5)
-      it('internal-short-timeout-test1', async function () { hasRun.push('internal-short-timeout-test1') })
-      it('internal-short-timeout-test2', async function () {
-        hasRun.push('internal-short-timeout-test2')
-        await wait(100)
-      })
-      it('internal-short-timeout-test3', async function () {
-        this.timeout(20)
-        hasRun.push('internal-short-timeout-test3')
-        await wait(10)
-      })
+      hasRun.push('suite-default-timeout-test4')
+      await wait(100)
     })
+  })
 
-    describe('internal with long timeout', function () {
-      this.timeout(50)
-      it('internal-long-timeout-test1', async function () { hasRun.push('internal-long-timeout-test1') })
-      it('internal-long-timeout-test2', async function () {
-        this.timeout(10)
-        hasRun.push('internal-long-timeout-test2')
-        await wait(20)
-      })
+  describe('suite with short timeout', function () {
+    this.timeout(5)
+    it('suite-short-timeout-test1', async function () { hasRun.push('suite-short-timeout-test1') })
+    it('suite-short-timeout-test2', async function () {
+      hasRun.push('suite-short-timeout-test2')
+      await wait(100)
+    })
+    it('suite-short-timeout-test3', async function () {
+      this.timeout(20)
+      hasRun.push('suite-short-timeout-test3')
+      await wait(10)
+    })
+  })
+
+  describe('suite with long timeout', function () {
+    this.timeout(50)
+    it('suite-long-timeout-test1', async function () { hasRun.push('suite-long-timeout-test1') })
+    it('suite-long-timeout-test2', async function () {
+      this.timeout(10)
+      hasRun.push('suite-long-timeout-test2')
+      await wait(20)
     })
   })
 

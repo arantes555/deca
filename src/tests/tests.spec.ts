@@ -43,6 +43,7 @@ describe('deca', function () {
       const res = await TestSuiteAsync.run()
       assert.strictEqual(res.success, false)
       assert.deepStrictEqual(TestSuiteAsync.hasRun, TestSuiteAsync.expectedRun)
+      assert.deepStrictEqual(getComparableSuiteResult(res.result), TestSuiteAsync.expectedResult)
     })
   })
   describe('BDD interface', function () {
@@ -82,6 +83,7 @@ describe('deca', function () {
       const res = await TestBddAsyncOld.run()
       assert.strictEqual(res.success, false)
       assert.deepStrictEqual(TestBddAsyncOld.hasRun, TestBddAsyncOld.expectedRun)
+      assert.deepStrictEqual(getComparableSuiteResult(res.result), TestBddAsyncOld.expectedResult)
     })
   })
 })

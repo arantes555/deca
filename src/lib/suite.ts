@@ -100,7 +100,7 @@ export class Suite {
 
   addSubSuite (
     name: string,
-    func: (ctx?: Suite) => void,
+    func: (ctx: Suite) => void,
     { timeout, skipped = false, only = false, silent = this.silent }: { timeout?: number, skipped?: boolean, only?: boolean, silent?: boolean } = {}
   ): void {
     const child = new Suite()
@@ -112,7 +112,7 @@ export class Suite {
     child.only = only
     child.silent = silent
     this.children.push(child)
-    func(child)
+    func.bind(child)(child)
   }
 
   async runBefore (): Promise<void> {
