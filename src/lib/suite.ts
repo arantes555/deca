@@ -1,5 +1,8 @@
 import { noop, TestFunc, timeout } from './utils'
 
+export type TestResult = { name: string, error: Error | null, skipped: boolean }
+export type SuiteResult = { name: string, tests: Array<TestResult>, subSuites: Array<SuiteResult>, skipped: boolean }
+
 export class Test {
   name: string
   func: TestFunc
@@ -23,6 +26,10 @@ export class Test {
     t.skipped = skipped
     t.only = only
     return t
+  }
+
+  timeout (t: number): void {
+    this.timeout_ = t
   }
 
   async run (): Promise<void> {
@@ -134,9 +141,11 @@ export class Suite {
     if (this.parent) await this.parent.runAfterEach()
   }
 
-  async run (): Promise<boolean> {
+  async run (): Promise<{ success: boolean, result: SuiteResult }> {
     if (this.depth >= 0 && !this.silent) console.log(`${'  '.repeat(this.depth)}${this.name}`)
-    if (this.skipped) return null
+    const tests: Array<TestResult> = []
+    const subSuites: Array<SuiteResult> = []
+    if (this.skipped) return { success: true, result: { name: this.name, tests, subSuites, skipped: true } }
     try {
       let success = true
       await this.runBefore()
@@ -147,16 +156,19 @@ export class Suite {
       for (const test of testsToRun) {
         if (test.skipped) {
           if (!this.silent) console.log(`${'  '.repeat(this.depth + 1)}➡️ ${test.name} (skipped)`)
+          tests.push({ name: test.name, error: null, skipped: true })
           continue
         }
         await this.runBeforeEach()
         try {
           await test.run()
           if (!this.silent) console.log(`${'  '.repeat(this.depth + 1)}✅  ${test.name}`)
+          tests.push({ name: test.name, error: null, skipped: false })
         } catch (testError) {
           if (!this.silent) console.error(`${'  '.repeat(this.depth + 1)}❌  ${test.name} (error)`)
           if (!this.silent) console.error(testError)
           success = false
+          tests.push({ name: test.name, error: testError, skipped: false })
         }
         await this.runAfterEach()
       }
@@ -164,15 +176,16 @@ export class Suite {
         ? this.children.filter(c => c.only || c.childrenHaveOnly())
         : this.children
       for (const child of subSuitesToRun) {
-        const childSuiteSuccess = await child.run()
-        if (childSuiteSuccess === false) success = false
+        const childSuiteRes = await child.run()
+        if (childSuiteRes.success === false) success = false
+        subSuites.push(childSuiteRes.result)
       }
       await this.runAfter()
-      return success
+      return { success, result: { name: this.name, tests, subSuites, skipped: false } }
     } catch (err) {
       if (!this.silent) console.error(`${'  '.repeat(this.depth + 1)}❌  Error while running one of the hooks`)
       if (!this.silent) console.error(err)
-      return false
+      return { success: false, result: { name: this.name, tests, subSuites, skipped: false } }
     }
   }
 }
