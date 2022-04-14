@@ -1,7 +1,7 @@
 import { noop, TestFunc, timeout } from './utils'
 
 export type TestResult = { name: string, error: Error | null, skipped: boolean }
-export type SuiteResult = { name: string, tests: Array<TestResult>, subSuites: Array<SuiteResult>, skipped: boolean }
+export type SuiteResult = { name: string, success: boolean, tests: Array<TestResult>, subSuites: Array<SuiteResult>, skipped: boolean }
 
 export class Test {
   name: string
@@ -141,11 +141,11 @@ export class Suite {
     if (this.parent) await this.parent.runAfterEach()
   }
 
-  async run (): Promise<{ success: boolean, result: SuiteResult }> {
+  async run (): Promise<SuiteResult> {
     if (this.depth >= 0 && !this.silent) console.log(`${'  '.repeat(this.depth)}${this.name}`)
     const tests: Array<TestResult> = []
     const subSuites: Array<SuiteResult> = []
-    if (this.skipped) return { success: true, result: { name: this.name, tests, subSuites, skipped: true } }
+    if (this.skipped) return { name: this.name, success: true, tests, subSuites, skipped: true }
     try {
       let success = true
       await this.runBefore()
@@ -178,14 +178,14 @@ export class Suite {
       for (const child of subSuitesToRun) {
         const childSuiteRes = await child.run()
         if (childSuiteRes.success === false) success = false
-        subSuites.push(childSuiteRes.result)
+        subSuites.push(childSuiteRes)
       }
       await this.runAfter()
-      return { success, result: { name: this.name, tests, subSuites, skipped: false } }
+      return { name: this.name, success, tests, subSuites, skipped: false }
     } catch (err) {
       if (!this.silent) console.error(`${'  '.repeat(this.depth + 1)}❌  Error while running one of the hooks`)
       if (!this.silent) console.error(err)
-      return { success: false, result: { name: this.name, tests, subSuites, skipped: false } }
+      return { name: this.name, success: false, tests, subSuites, skipped: false }
     }
   }
 }

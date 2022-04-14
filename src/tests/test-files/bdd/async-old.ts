@@ -31,11 +31,13 @@ export const expectedRun = [
 
 export const expectedResult: ComparableSuiteResult = {
   name: '',
+  success: false,
   skipped: false,
   tests: [],
   subSuites: [
     {
       name: 'suite with hooks',
+      success: true,
       skipped: false,
       tests: [
         { name: 'suite-hooks-test1', skipped: false, error: null }
@@ -44,6 +46,7 @@ export const expectedResult: ComparableSuiteResult = {
     },
     {
       name: 'suite with default timeout',
+      success: false,
       skipped: false,
       tests: [
         { name: 'suite-default-timeout-test1', skipped: false, error: null },
@@ -55,6 +58,7 @@ export const expectedResult: ComparableSuiteResult = {
     },
     {
       name: 'suite with short timeout',
+      success: false,
       skipped: false,
       tests: [
         { name: 'suite-short-timeout-test1', skipped: false, error: null },
@@ -65,6 +69,7 @@ export const expectedResult: ComparableSuiteResult = {
     },
     {
       name: 'suite with long timeout',
+      success: false,
       skipped: false,
       tests: [
         { name: 'suite-long-timeout-test1', skipped: false, error: null },

@@ -49,11 +49,13 @@ export const expectedRun = [
 
 export const expectedResult: ComparableSuiteResult = {
   name: '',
+  success: true,
   skipped: false,
   tests: [],
   subSuites: [
     {
       name: 'test-run-order',
+      success: true,
       skipped: false,
       tests: [
         { name: 'test1', skipped: false, error: null },
@@ -62,6 +64,7 @@ export const expectedResult: ComparableSuiteResult = {
       subSuites: [
         {
           name: 'internal',
+          success: true,
           skipped: false,
           tests: [
             { name: 'internalTest1', skipped: false, error: null },

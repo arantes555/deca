@@ -18,11 +18,13 @@ export const expectedRun = [
 
 export const expectedResult: ComparableSuiteResult = {
   name: '',
+  success: false,
   skipped: false,
   tests: [],
   subSuites: [
     {
       name: 'suite-with-error-in-test',
+      success: false,
       skipped: false,
       tests: [
         { name: 'suite-with-error-in-test-test1', skipped: false, error: null },
@@ -32,6 +34,7 @@ export const expectedResult: ComparableSuiteResult = {
       subSuites: [
         {
           name: 'suite-with-error-in-test-subsuite',
+          success: true,
           skipped: false,
           tests: [
             { name: 'suite-with-error-in-test-subsuite-test', skipped: false, error: null }
@@ -42,12 +45,14 @@ export const expectedResult: ComparableSuiteResult = {
     },
     {
       name: 'suite-with-error-in-before',
+      success: false,
       skipped: false,
       tests: [],
       subSuites: []
     },
     {
       name: 'suite-with-error-in-second-beforeEach',
+      success: false,
       skipped: false,
       tests: [
         { name: 'suite-with-error-in-second-beforeEach-test1', skipped: false, error: null }

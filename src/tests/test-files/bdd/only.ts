@@ -16,11 +16,13 @@ export const expectedRun = [
 
 export const expectedResult: ComparableSuiteResult = {
   name: '',
+  success: true,
   skipped: false,
   tests: [],
   subSuites: [
     {
       name: 'test-only',
+      success: true,
       skipped: false,
       tests: [
         { name: 'test2', skipped: false, error: null }
@@ -28,6 +30,7 @@ export const expectedResult: ComparableSuiteResult = {
       subSuites: [
         {
           name: 'internal-not-only-with-only-test',
+          success: true,
           skipped: false,
           tests: [
             { name: 'internal-not-only-with-only-test-test-2', skipped: false, error: null }
@@ -36,6 +39,7 @@ export const expectedResult: ComparableSuiteResult = {
         },
         {
           name: 'internal-only',
+          success: true,
           skipped: false,
           tests: [
             { name: 'internal-only-test-1', skipped: false, error: null },
@@ -44,6 +48,7 @@ export const expectedResult: ComparableSuiteResult = {
           subSuites: [
             {
               name: 'internal-only-internal',
+              success: true,
               skipped: false,
               tests: [
                 { name: 'internal-only-internal-test-1', skipped: false, error: null },
