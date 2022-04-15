@@ -83,19 +83,19 @@ export class Suite {
   }
 
   before (name: string, fn: TestFunc): void {
-    this.before_.push(Test.create(name, fn))
+    this.before_.push(Test.create(name, fn, { timeout: this.timeout_ }))
   }
 
   after (name: string, fn: TestFunc): void {
-    this.after_.push(Test.create(name, fn))
+    this.after_.push(Test.create(name, fn, { timeout: this.timeout_ }))
   }
 
   beforeEach (name: string, fn: TestFunc): void {
-    this.beforeEach_.push(Test.create(name, fn))
+    this.beforeEach_.push(Test.create(name, fn, { timeout: this.timeout_ }))
   }
 
   afterEach (name: string, fn: TestFunc): void {
-    this.afterEach_.push(Test.create(name, fn))
+    this.afterEach_.push(Test.create(name, fn, { timeout: this.timeout_ }))
   }
 
   addTest (
