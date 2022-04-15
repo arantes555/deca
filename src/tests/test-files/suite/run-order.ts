@@ -51,12 +51,16 @@ export const expectedResult: ComparableSuiteResult = {
   name: '',
   success: true,
   skipped: false,
+  nPassing: 4,
+  nFailed: 0,
   tests: [],
   subSuites: [
     {
       name: 'test-run-order',
       success: true,
       skipped: false,
+      nPassing: 4,
+      nFailed: 0,
       tests: [
         { name: 'test1', skipped: false, error: null },
         { name: 'test2', skipped: false, error: null }
@@ -66,6 +70,8 @@ export const expectedResult: ComparableSuiteResult = {
           name: 'internal',
           success: true,
           skipped: false,
+          nPassing: 2,
+          nFailed: 0,
           tests: [
             { name: 'internalTest1', skipped: false, error: null },
             { name: 'internalTest2', skipped: false, error: null }
