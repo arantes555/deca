@@ -1,18 +1,22 @@
 import * as bdd from './bdd'
+import type { SuiteResult } from './suite'
 
-// TODO: remove ts-ignores
+/* eslint-disable no-var */
+declare global {
+  var describe: typeof bdd.describe
+  var it: typeof bdd.it
+  var before: typeof bdd.before
+  var after: typeof bdd.after
+  var beforeEach: typeof bdd.beforeEach
+  var afterEach: typeof bdd.afterEach
+  var runTests: () => Promise<SuiteResult>
+}
+/* eslint-enable no-var */
 
-// @ts-ignore
 global.describe = bdd.describe
-// @ts-ignore
 global.it = bdd.it
-// @ts-ignore
 global.before = bdd.before
-// @ts-ignore
 global.after = bdd.after
-// @ts-ignore
 global.beforeEach = bdd.beforeEach
-// @ts-ignore
 global.afterEach = bdd.afterEach
-// @ts-ignore
 global.runTests = () => bdd.getGlobalSuite().run()
