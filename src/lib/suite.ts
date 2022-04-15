@@ -23,7 +23,7 @@ export class Test {
   static create (
     name: string,
     func: TestFunc,
-    { timeout = 3000, skipped = false, only = false }: { timeout?: number, skipped?: boolean, only?: boolean } = {}
+    { timeout = 2000, skipped = false, only = false }: { timeout?: number, skipped?: boolean, only?: boolean } = {}
   ): Test {
     const t = new this()
     t.name = name
